@@ -1,5 +1,7 @@
 from pathlib import Path
 import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
 import tarfile
 import urllib.request
 
@@ -15,6 +17,8 @@ def load_housing_data():
 
 def main():
     housing = load_housing_data()
+    housing.hist(bins=50, figsize=(12,8))
+    plt.show()
 
 if __name__ == "__main__":
     main()
