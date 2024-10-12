@@ -66,7 +66,17 @@ def main():
     
     print(strat_test_set["income_cat"].value_counts() / len(strat_test_set))
 
-    plt.show() # View graph
+    # Delete columne income_cat
+    for set_ in (strat_train_set, strat_test_set):
+        set_.drop("income_cat", axis=1, inplace=True)
+    
+    # Copy data
+    housing = strat_train_set.copy()
+
+    # Visual data
+    housing.plot(kind="scatter", x="longitude", y="latitude", grid=True, s=housing["population"]/ 100, label="population", c="median_house_value", cmap="jet", colorbar=True, legend=True, sharex=False, figsize=(10,7))
+
+    plt.show() # View graphs
 
 if __name__ == "__main__":
     main()
