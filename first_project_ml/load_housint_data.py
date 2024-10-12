@@ -76,7 +76,15 @@ def main():
     # Visual data
     housing.plot(kind="scatter", x="longitude", y="latitude", grid=True, s=housing["population"]/ 100, label="population", c="median_house_value", cmap="jet", colorbar=True, legend=True, sharex=False, figsize=(10,7))
 
-    plt.show() # View graphs
+    print("Check correlation:")
+    # Select only numerical column
+    housing_only_value_num = housing.select_dtypes(include=[np.number])
 
+    # Check rank correlation every atribiute with mediana price house
+    corr_matrix = housing_only_value_num.corr()
+    print(corr_matrix["median_house_value"].sort_values(ascending=False))
+
+    plt.show() # View graphs
+    
 if __name__ == "__main__":
     main()
