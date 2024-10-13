@@ -5,6 +5,7 @@ import tarfile
 import urllib.request
 from pathlib import Path
 from zlib import crc32
+from sklearn.impute import SimpleImputer
 from sklearn.model_selection import train_test_split
 from sklearn.model_selection import StratifiedShuffleSplit
 from pandas.plotting import scatter_matrix
@@ -98,6 +99,16 @@ def main():
     # Primary data version
     housing = strat_train_set.drop("median_house_value", axis=1)
     housing_labels = strat_train_set["median_house_value"].copy()
+
+    # Imputation data
+    imputer = SimpleImputer(strategy="median")
+    imputer.fit(housing_only_value_num)
+
+    print("Imputer statistics: ", imputer.statistics_)
+    print("Median values: ", housing_only_value_num.median().values)
+
+    # Transform data to learning set
+    X = imputer.transform(housing_only_value_num)
 
     plt.show() # View graphs
 
