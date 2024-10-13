@@ -1,12 +1,13 @@
-from pathlib import Path
-from zlib import crc32
-from sklearn.model_selection import train_test_split
-from sklearn.model_selection import StratifiedShuffleSplit 
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import tarfile
 import urllib.request
+from pathlib import Path
+from zlib import crc32
+from sklearn.model_selection import train_test_split
+from sklearn.model_selection import StratifiedShuffleSplit
+from pandas.plotting import scatter_matrix
 
 # Loading data for learn with github
 def load_housing_data():
@@ -50,8 +51,8 @@ def main():
     housing["income_cat"].value_counts().sort_index().plot.bar(rot=0, grid=True)
     plt.xlabel("Kategoria dochodów")
     plt.ylabel("Liczba dystryktów")
-    housing.hist(bins=50, figsize=(12,8)) # Set all data graphs 
-    
+    housing.hist(bins=50, figsize=(12,8)) # Set all data graphs
+
     # Stratifield sampling
     splitter = StratifiedShuffleSplit(n_splits=10, test_size=0.2, random_state=42)
     strat_splits = []
@@ -59,17 +60,17 @@ def main():
         strat_train_set_n = housing.iloc[train_index]
         strat_test_set_n = housing.iloc[test_index]
         strat_splits.append([strat_train_set_n, strat_test_set_n])
-    
+
     # Check proportional data on example
     strat_train_set, strat_test_set = strat_splits[0]
     strat_train_set, strat_test_set = train_test_split(housing, test_size=0.2, stratify=housing["income_cat"], random_state=42)
-    
+
     print(strat_test_set["income_cat"].value_counts() / len(strat_test_set))
 
     # Delete columne income_cat
     for set_ in (strat_train_set, strat_test_set):
         set_.drop("income_cat", axis=1, inplace=True)
-    
+
     # Copy data
     housing = strat_train_set.copy()
 
@@ -77,6 +78,11 @@ def main():
     housing.plot(kind="scatter", x="longitude", y="latitude", grid=True, s=housing["population"]/ 100, label="population", c="median_house_value", cmap="jet", colorbar=True, legend=True, sharex=False, figsize=(10,7))
 
     print("Check correlation:")
+    # Make new attribiute data
+    housing["pokoje_na_rodzine"] = housing["total_rooms"]/housing["households"]
+    housing["wspolczynnik_sypialni"] = housing["total_bedrooms"]/housing["total_rooms"]
+    housing["liczba_pokoi_na_dom"] = housing["population"]/housing["households"]
+
     # Select only numerical column
     housing_only_value_num = housing.select_dtypes(include=[np.number])
 
@@ -84,7 +90,16 @@ def main():
     corr_matrix = housing_only_value_num.corr()
     print(corr_matrix["median_house_value"].sort_values(ascending=False))
 
+    # Show correllation graphs
+    attributes =["median_house_value", "median_income", "total_rooms", "housing_median_age"]
+
+    scatter_matrix(housing[attributes], figsize=(12,8))
+
+    # Primary data version
+    housing = strat_train_set.drop("median_house_value", axis=1)
+    housing_labels = strat_train_set["median_house_value"].copy()
+
     plt.show() # View graphs
-    
+
 if __name__ == "__main__":
     main()
