@@ -3,12 +3,18 @@ import numpy as np
 import matplotlib.pyplot as plt
 import tarfile
 import urllib.request
+from sklearn.preprocessing import OrdinalEncoder
 from pathlib import Path
 from zlib import crc32
+from sklearn.preprocessing import MinMaxScaler
+from sklearn.preprocessing import StandardScaler
 from sklearn.impute import SimpleImputer
+from sklearn.preprocessing import OneHotEncoder
 from sklearn.model_selection import train_test_split
 from sklearn.model_selection import StratifiedShuffleSplit
 from pandas.plotting import scatter_matrix
+from sklearn.compose import TransformedTargetRegressor
+from sklearn.linear_model import LinearRegression
 
 # Loading data for learn with github
 def load_housing_data():
@@ -109,6 +115,41 @@ def main():
 
     # Transform data to learning set
     X = imputer.transform(housing_only_value_num)
+    # Put name column and index
+    housing_tr = pd.DataFrame(X, columns=housing_only_value_num.columns,index=housing_only_value_num.index)
+
+    # Transform string category to numeral
+    housing_cat = housing[["ocean_proximity"]]
+    ordinal_encoder = OrdinalEncoder()
+    housing_cat_encoded = ordinal_encoder.fit_transform(housing_cat)
+
+    # One-hot encoding
+    cat_encoder = OneHotEncoder()
+    housing_cat_1hot = cat_encoder.fit_transform(housing_cat)
+
+    print("One-hot matrix: ", housing_cat_1hot.toarray())
+
+    # Scaling
+    min_max_scaler = MinMaxScaler(feature_range=(-1,1))
+    housing_num_min_max_scaled = min_max_scaler.fit_transform(housing_only_value_num)
+
+    # Standard mechanizm
+    std_scaler = StandardScaler()
+    housing_num_std_scaled = std_scaler.fit_transform(housing_only_value_num)
+
+    target_scaler = StandardScaler()
+    scaled_labels = target_scaler.fit_transform(housing_labels.to_frame())
+
+    model = LinearRegression()
+    model.fit(housing[["median_income"]], scaled_labels)
+    some_new_data = housing[["median_income"]].iloc[:5]
+
+    scaled_predictions = model.predict(some_new_data)
+    predictions = target_scaler.inverse_transform(scaled_predictions)
+
+    model = TransformedTargetRegressor(LinearRegression(), transformer=StandardScaler())
+    model.fit(housing[["median_income"]], housing_labels)
+    predictions = model.predict(some_new_data)
 
     plt.show() # View graphs
 
