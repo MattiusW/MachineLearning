@@ -17,6 +17,7 @@ from pandas.plotting import scatter_matrix
 from sklearn.compose import TransformedTargetRegressor
 from sklearn.linear_model import LinearRegression
 from sklearn.metrics.pairwise import rbf_kernel
+from ClusterSimilarity import ClusterSimilarity
 
 # Loading data for learn with github
 def load_housing_data():
@@ -164,6 +165,11 @@ def main():
 
     ratio_transformer = FunctionTransformer(lambda X: X[:, [0]] / X[:, [1]])
     print(ratio_transformer.transform(np.array([[1.,2.], [3., 4.]])))
+
+    cluster_simil = ClusterSimilarity(n_cluster=10, gamma=1., random_state=42)
+    similarities = cluster_simil.fit_transform(housing[["latitude", "longitude"]], sample_weight=housing_labels)
+
+    print(f"Similarity: {similarities}")
 
     plt.show() # View graphs
 
