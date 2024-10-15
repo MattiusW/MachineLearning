@@ -17,4 +17,4 @@ class ClusterSimilarity(BaseEstimator, TransformerMixin):
         return rbf_kernel(X, self.kmeans_.cluster_centers_,gamma=self.gamma)
 
     def get_feature_names_out(self,names=None):
-        return [f"Podobienstwo {i} skupienia" for i in range(self.n_clusters)]
+        return [f"Podobienstwo {i} skupienia" for i in range(self.n_cluster)]

@@ -18,6 +18,9 @@ from sklearn.compose import TransformedTargetRegressor
 from sklearn.linear_model import LinearRegression
 from sklearn.metrics.pairwise import rbf_kernel
 from ClusterSimilarity import ClusterSimilarity
+from sklearn.pipeline import make_pipeline
+from sklearn.compose import ColumnTransformer
+from sklearn.compose import make_column_selector, make_column_transformer
 
 # Loading data for learn with github
 def load_housing_data():
@@ -46,6 +49,15 @@ def split_data_with_id_hash(data, test_ratio, id_column):
     ids = data[id_column]
     in_test_set = ids.apply(lambda id_: is_id_in_test_set(id_, test_ratio))
     return data.loc[~in_test_set], data.loc[in_test_set]
+
+def column_ratio(X):
+    return X[:, [0]] / X[:, [1]]
+
+def ratio_name(function_transformer, feature_names_in):
+    return["ratio"] #features name
+
+def ratio_pipeline():
+    return make_pipeline(SimpleImputer(strategy="median"), FunctionTransformer(column_ratio, feature_names_out=ratio_name), StandardScaler())
 
 def main():
     housing = load_housing_data()
@@ -170,6 +182,37 @@ def main():
     similarities = cluster_simil.fit_transform(housing[["latitude", "longitude"]], sample_weight=housing_labels)
 
     print(f"Similarity: {similarities}")
+
+    num_pipeline = make_pipeline(SimpleImputer(strategy="median"), StandardScaler())
+    housing_num_prepared = num_pipeline.fit_transform(housing_only_value_num)
+    print(housing_num_prepared[:2].round(2))
+
+    df_housing_num_prepared = pd.DataFrame(housing_num_prepared, columns=num_pipeline.get_feature_names_out(),index=housing_only_value_num.index)
+
+    # Transform column
+    num_attribs = ["longitude", "latitude", "housing_median_age", "total_rooms", "total_bedrooms", "population", "households", "median_income"]
+    cat_attribs = ["ocean_proximity"]
+
+    cat_pipeline = make_pipeline(SimpleImputer(strategy="most_frequent"),OneHotEncoder(handle_unknown="ignore"))
+
+    #preprocessing = ColumnTransformer([("num", num_pipeline, num_attribs), ("cat", cat_pipeline, cat_attribs)])
+
+    # Custom name column
+    preprocessing = make_column_transformer((num_pipeline, make_column_selector(dtype_include=np.number)), (cat_pipeline, make_column_selector(dtype_include=object)),)
+
+    housing_prepared = preprocessing.fit_transform(housing)
+
+    log_pipeline = make_pipeline(SimpleImputer(strategy="median"), FunctionTransformer(np.log, feature_names_out="one-to-one"), StandardScaler())
+
+    cluster_simil = ClusterSimilarity(n_cluster=10, gamma=1., random_state=42)
+    default_num_pipeline = make_pipeline(SimpleImputer(strategy="median"), StandardScaler())
+
+    preprocessing = ColumnTransformer([("współczynnik_sypialni", ratio_pipeline(), ["total_bedrooms", "total_rooms"]),("pokoje_na_rodzine", ratio_pipeline(), ["total_rooms","households"]),("liczba_osób_na_dom", ratio_pipeline(), ["population", "households"]),("log", log_pipeline, ["total_bedrooms", "total_rooms", "population", "households", "median_income"]),("geo",cluster_simil, ["latitude", "longitude"]), ("cat", cat_pipeline,
+                                                                                                                                                                                                                                                                                                                                                                                                                                make_column_selector(dtype_include=object)),],remainder=default_num_pipeline)
+
+    housing_prepared = preprocessing.fit_transform(housing)
+    print(housing_prepared.shape)
+    print(preprocessing.get_feature_names_out())
 
     plt.show() # View graphs
 
