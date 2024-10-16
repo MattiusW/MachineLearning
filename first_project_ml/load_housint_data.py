@@ -21,6 +21,10 @@ from ClusterSimilarity import ClusterSimilarity
 from sklearn.pipeline import make_pipeline
 from sklearn.compose import ColumnTransformer
 from sklearn.compose import make_column_selector, make_column_transformer
+from sklearn.tree import DecisionTreeRegressor
+from sklearn.metrics import mean_squared_error
+from sklearn.model_selection import cross_val_score
+from sklearn.ensemble import RandomForestRegressor
 
 # Loading data for learn with github
 def load_housing_data():
@@ -213,6 +217,25 @@ def main():
     housing_prepared = preprocessing.fit_transform(housing)
     print(housing_prepared.shape)
     print(preprocessing.get_feature_names_out())
+
+    # Model ML
+    tree_reg = make_pipeline(preprocessing, DecisionTreeRegressor(random_state=42))
+    tree_reg.fit(housing, housing_labels)
+    housing_predictions = tree_reg.predict(housing)
+    tree_rmse = mean_squared_error(housing_labels, housing_predictions,squared=False)
+    print("Wydajność modelu: ", tree_rmse)
+
+    # Rate model with method k-fold cross-validation
+    tree_rmses = -cross_val_score(tree_reg, housing, housing_labels, scoring="neg_root_mean_squared_error", cv=10)
+
+    print(pd.Series(tree_rmses).describe())
+
+    # RandomForestRegressor last model
+    print("ForestRandomReggresor model")
+
+    forest_reg = make_pipeline(preprocessing, RandomForestRegressor(random_state=42))
+    forest_rmses = -cross_val_score(forest_reg, housing, housing_labels,scoring="neg_root_mean_squared_error", cv=10)
+    print(pd.Series(forest_rmses).describe())
 
     plt.show() # View graphs
 
