@@ -3,6 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import tarfile
 import urllib.request
+import joblib
 from sklearn.preprocessing import OrdinalEncoder
 from pathlib import Path
 from zlib import crc32
@@ -25,6 +26,11 @@ from sklearn.tree import DecisionTreeRegressor
 from sklearn.metrics import mean_squared_error
 from sklearn.model_selection import cross_val_score
 from sklearn.ensemble import RandomForestRegressor
+from sklearn.model_selection import RandomizedSearchCV
+from scipy.stats import randint
+from sklearn.model_selection import GridSearchCV
+from sklearn.pipeline import Pipeline
+from scipy import stats
 
 # Loading data for learn with github
 def load_housing_data():
@@ -231,11 +237,41 @@ def main():
     print(pd.Series(tree_rmses).describe())
 
     # RandomForestRegressor last model
-    print("ForestRandomReggresor model")
+    #print("ForestRandomReggresor model")
 
-    forest_reg = make_pipeline(preprocessing, RandomForestRegressor(random_state=42))
-    forest_rmses = -cross_val_score(forest_reg, housing, housing_labels,scoring="neg_root_mean_squared_error", cv=10)
-    print(pd.Series(forest_rmses).describe())
+    #forest_reg = make_pipeline(preprocessing, RandomForestRegressor(random_state=42))
+    #forest_rmses = -cross_val_score(forest_reg, housing, housing_labels,scoring="neg_root_mean_squared_error", cv=10)
+    #print(pd.Series(forest_rmses).describe())
+
+    full_pipeline = Pipeline([("preprocessing", preprocessing),("random_forest", RandomForestRegressor(random_state=42))])
+
+    param_grid = [{'preprocessing__geo__n_cluster': [5,8,10], 'random_forest__max_features': [4,6,8]}, {'preprocessing__geo__n_cluster':[10,15], 'random_forest__max_features': [6,8,10]}]
+
+    grid_search = GridSearchCV(full_pipeline, param_grid, cv=3, scoring='neg_root_mean_squared_error')
+
+    grid_search.fit(housing, housing_labels)
+
+    param_distribs = {'preprocessing__geo__n_cluster': randint(low=3, high=50), 'random_forest__max_features': randint(low=2, high=20)}
+
+    rnd_search = RandomizedSearchCV(full_pipeline, param_distributions=param_distribs, n_iter=10, cv=3, scoring='neg_root_mean_squared_error', random_state=42)
+
+    rnd_search.fit(housing,housing_labels)
+
+    # Final model
+    final_model = rnd_search.best_estimator_
+    feature_importances = final_model["random_forest"].feature_importances_
+    feature_importances.round(2)
+
+    X_test = strat_test_set.drop("median_house_value", axis=1)
+    y_test = strat_test_set["median_house_value"].copy()
+
+    final_predictions = final_model.predict(X_test)
+
+    final_rmse = mean_squared_error(y_test, final_predictions, squared=False)
+    print(final_rmse)
+
+    # Save model
+    joblib.dump(final_model, "my_california_housing_model.pkl")
 
     plt.show() # View graphs
 
