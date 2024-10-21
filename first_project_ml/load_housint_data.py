@@ -31,6 +31,7 @@ from scipy.stats import randint
 from sklearn.model_selection import GridSearchCV
 from sklearn.pipeline import Pipeline
 from scipy import stats
+from sklearn.svm import SVR
 
 # Loading data for learn with github
 def load_housing_data():
@@ -225,16 +226,22 @@ def main():
     print(preprocessing.get_feature_names_out())
 
     # Model ML
-    tree_reg = make_pipeline(preprocessing, DecisionTreeRegressor(random_state=42))
-    tree_reg.fit(housing, housing_labels)
-    housing_predictions = tree_reg.predict(housing)
-    tree_rmse = mean_squared_error(housing_labels, housing_predictions,squared=False)
-    print("Wydajność modelu: ", tree_rmse)
+    # tree_reg = make_pipeline(preprocessing, DecisionTreeRegressor(random_state=42))
+    # tree_reg.fit(housing, housing_labels)
+    # housing_predictions = tree_reg.predict(housing)
+    # tree_rmse = mean_squared_error(housing_labels, housing_predictions,squared=False)
+    # print("Wydajność modelu: ", tree_rmse)
+
+    # SOLUTION TO TASK 1 IN BOOK
+    svr_reg = make_pipeline(preprocessing, SVR(kernel="rbf", C=1.0, gamma="scale"))
+    svr_reg.fit(housing, housing_labels)
+    svr_rmses = -cross_val_score(svr_reg, housing, housing_labels, scoring="neg_root_mean_squared_error", cv=10)
+    print("SVR: ", pd.Series(svr_rmses).describe())
 
     # Rate model with method k-fold cross-validation
-    tree_rmses = -cross_val_score(tree_reg, housing, housing_labels, scoring="neg_root_mean_squared_error", cv=10)
+    # tree_rmses = -cross_val_score(tree_reg, housing, housing_labels, scoring="neg_root_mean_squared_error", cv=10)
 
-    print(pd.Series(tree_rmses).describe())
+    # print(pd.Series(tree_rmses).describe())
 
     # RandomForestRegressor last model
     #print("ForestRandomReggresor model")
@@ -271,7 +278,10 @@ def main():
     print(final_rmse)
 
     # Save model
-    joblib.dump(final_model, "my_california_housing_model.pkl")
+    #joblib.dump(final_model, "my_california_housing_model.pkl")
+
+    # Load model and view predictions
+    final_model_reloaded = joblib.load("my_california_housing_model.pkl")
 
     plt.show() # View graphs
 
