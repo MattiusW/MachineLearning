@@ -1,6 +1,8 @@
 import numpy as np
 import pandas as pd
 from sklearn.impute import SimpleImputer
+from sklearn.preprocessing import OrdinalEncoder, OneHotEncoder
+
 
 class PrepareDate():
     def __init__(self):
@@ -15,6 +17,14 @@ class PrepareDate():
         pd.DataFrame(imputer_X, columns=data_num.columns, index=data_num.index)
         self.data_num = data_num
         self.X = imputer_X
+
+    def category_to_num(self, cat_to_num):
+        ordinal_encoder = OrdinalEncoder()
+        cat_encoded = ordinal_encoder.fit_transform(cat_to_num)
+        return cat_encoded
+
+    def hot_encode(self, cat_to_hot_encode):
+        return OneHotEncoder().fit_transform(cat_to_hot_encode)
 
     def get_X(self):
         return self.X
