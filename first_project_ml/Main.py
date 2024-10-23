@@ -12,6 +12,9 @@ def main():
     housing_with_sklearn.split_data_frame_to_train_and_test_set(housing)
     strat_test_set = housing_with_sklearn.get_strat_test_set()
     strat_train_set = housing_with_sklearn.get_strat_train_set()
+    housing_prepare_data = PrepareDate()
+    housing_imputation_data = housing_prepare_data.imputation_data(housing)
+    get_X = housing_prepare_data.get_X()
 
     # Kopia danych
     housing_strat_train_copy = strat_train_set.copy()
@@ -19,6 +22,11 @@ def main():
 
     print("Próbkowanie za pomocą funkcji wbudowanej w bibliotekę: ")
     print(strat_test_set["income_cat"].value_counts() / len(strat_test_set))
+
+    print("Test transformatorów: ")
+    print(get_X)
+    print("Num data: ")
+    print(housing_prepare_data)
 
 if __name__ == "__main__":
     main()

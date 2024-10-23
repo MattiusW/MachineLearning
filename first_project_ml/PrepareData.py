@@ -1,27 +1,23 @@
-from binascii import crc32
 import numpy as np
+import pandas as pd
+from sklearn.impute import SimpleImputer
 
 class PrepareDate():
-    def __init__(self, loadData):
-        self.loadData = loadData
+    def __init__(self):
+        self.X = None
+        self.data_num = None
 
-    # Przetasuj i podziel dane na zestawy testowe i treningowe
-    def shuffle_and_split_data(loadData, test_ratio):
-        shuffled_indices = np.random.permutation(len(loadData))
-        test_set_size = int(len(loadData) * test_ratio)
-        test_indices = shuffled_indices[:test_set_size]
-        train_indices = shuffled_indices[test_set_size:]
-        return loadData.iloc[train_indices], loadData.iloc[test_indices]
+    def imputation_data(self, data_frame):
+        imputer = SimpleImputer(strategy="median")
+        data_num = data_frame.select_dtypes(include=[np.number])
+        imputer.fit(data_num)
+        imputer_X = imputer.transform(data_num)
+        pd.DataFrame(imputer_X, columns=data_num.columns, index=data_num.index)
+        self.data_num = data_num
+        self.X = imputer_X
 
-    # Sprawdź czy rekord powinien trafić do zestawu testowego
-    def is_id_in_test_set(identifier, test_ratio):
-        return crc32(np.int64(identifier)) < test_ratio * 2 ** 32
+    def get_X(self):
+        return self.X
 
-    def split_data_with_id_hash(self, data, test_ratio, id_column):
-        ids = data[id_column]
-        in_test_set = ids.apply(lambda id_: self.is_id_in_test_set(id_, test_ratio))
-        return data.loc[~in_test_set], data.loc[in_test_set]
-
-    # String override
     def __str__(self):
-        return f"Prepared data: {self.loadData}"
+        return f"Data Frame: {self.data_num}"
