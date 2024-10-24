@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 from sklearn.impute import SimpleImputer
-from sklearn.preprocessing import OrdinalEncoder, OneHotEncoder
+from sklearn.preprocessing import OrdinalEncoder, OneHotEncoder, MinMaxScaler
 
 
 class PrepareDate():
@@ -25,6 +25,11 @@ class PrepareDate():
 
     def hot_encode(self, cat_to_hot_encode):
         return OneHotEncoder().fit_transform(cat_to_hot_encode)
+
+    def scaling_data(self, data_to_scaling):
+        min_max_scaler = MinMaxScaler(feature_range=(-1,1))
+        num_min_max_scaled = min_max_scaler.fit_transform(data_to_scaling)
+        return num_min_max_scaled
 
     def get_X(self):
         return self.X
