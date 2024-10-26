@@ -2,6 +2,8 @@ import load_housint_data
 from Prediction import Prediction
 from PrepareData import PrepareDate
 from SplitData import SplitData
+from TransformPipeline import TransformPipeline
+
 
 def main():
     housing = load_housint_data.load_housing_data()
@@ -21,12 +23,14 @@ def main():
     # Skalowanie kodowanych danych
     housing_min_max_scaled = housing_prepare_data.scaling_data(housing_cat_encoded)
 
-    print(strat_train_set.columns)
-
     # Predykcja modelu LinearRegression
     model = Prediction()
     model.train_linear_model(housing[["median_income"]], housing_strat_train_labales_copy.to_frame())
 
+    print("Pipeline")
+    # Pipeline
+    transform_pipeline = TransformPipeline(housing_cat_encoded)
+    transform_pipeline.call_pipeline()
 
 if __name__ == "__main__":
     main()
