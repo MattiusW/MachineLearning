@@ -19,6 +19,7 @@ def main():
     get_X = housing_prepare_data.get_X()
     housing = strat_train_set
     housing_cat_encoded = housing_prepare_data.category_to_num(housing[["ocean_proximity"]])
+    housing[["ocean_proximity"]] = housing_cat_encoded
     one_hot_encoded = housing_prepare_data.hot_encode(housing_cat_encoded)
     # Skalowanie kodowanych danych
     housing_min_max_scaled = housing_prepare_data.scaling_data(housing_cat_encoded)
@@ -27,10 +28,10 @@ def main():
     model = Prediction()
     model.train_linear_model(housing[["median_income"]], housing_strat_train_labales_copy.to_frame())
 
-    print("Pipeline")
     # Pipeline
     transform_pipeline = TransformPipeline(housing_cat_encoded)
     transform_pipeline.call_pipeline()
+    transform_pipeline.transform_column_data(housing)
 
 if __name__ == "__main__":
     main()
