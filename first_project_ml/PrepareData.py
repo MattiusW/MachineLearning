@@ -1,13 +1,14 @@
 import numpy as np
 import pandas as pd
 from sklearn.impute import SimpleImputer
-from sklearn.preprocessing import OrdinalEncoder, OneHotEncoder, MinMaxScaler
+from sklearn.preprocessing import OrdinalEncoder, OneHotEncoder, MinMaxScaler, LabelBinarizer
 
 
 class PrepareDate():
     def __init__(self):
         self.X = None
         self.data_num = None
+        self.encoder = None
 
     def imputation_data(self, data_frame):
         imputer = SimpleImputer(strategy="median")
@@ -24,7 +25,7 @@ class PrepareDate():
         return cat_encoded
 
     def hot_encode(self, cat_to_hot_encode):
-        return OneHotEncoder().fit_transform(cat_to_hot_encode)
+        self.encoder = OneHotEncoder().fit_transform(cat_to_hot_encode)
 
     def scaling_data(self, data_to_scaling):
         min_max_scaler = MinMaxScaler(feature_range=(-1,1))
