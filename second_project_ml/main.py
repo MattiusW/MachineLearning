@@ -1,3 +1,4 @@
+from Grafs import Grafs
 from Mnist import Mnist
 
 def main():
@@ -6,12 +7,12 @@ def main():
     # Załadowanie danych z MNIST
     mnist = Mnist().load_mnist_data
 
+    # Inicjalizacja danych
     X, y = mnist.data, mnist.target
-    print(X)
-    print(X.shape)
-    print(y)
-    print(y.shape)
 
+    # Wyswietlenie danych za pomoca grafu
+    graf = Grafs()
+    graf.plots_digit(X[0])
 
 if __name__ == '__main__':
     main()
