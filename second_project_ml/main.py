@@ -1,3 +1,5 @@
+import matplotlib.pyplot as plt
+
 from Classificator import Classificator
 from Grafs import Grafs
 from Mnist import Mnist
@@ -18,12 +20,15 @@ def main():
     y_train_5 = (y_train == '5') # Wartosc true dla piatek
     y_test_5 = (y_test == '5')
     classificator = Classificator()
-    classificator.sgd_model(X_train,y_train_5, X[0])
-    print("Is five?: ", classificator.sgd_predict)
+    sgd_test_correct = classificator.sgd_model(X_train,y_train_5, X[0])
+    print("Is five correct?: ", sgd_test_correct)
+    sgd_test_false = classificator.sgd_model(X_train, y_train_5, X[1])
+    print("Is five?: ", sgd_test_false)
 
     # Wyswietlenie danych za pomoca grafu
     graf = Grafs()
     graf.plots_digit(X[0])
+    graf.plots_digit(X[1])
 
 if __name__ == '__main__':
     main()
