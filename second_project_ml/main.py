@@ -1,4 +1,5 @@
 import matplotlib.pyplot as plt
+from sklearn.metrics import precision_score, recall_score, f1_score
 
 from CheckAccuracy import CheckAccuracy
 from Classificator import Classificator
@@ -38,6 +39,18 @@ def main():
     dummy_result = accuracy_test.model_cross_value_precision(dummy_clf, X_train, y_train_5)
     print(f"Test sprawdzianu krzyżowego dla klasyfikatora sgd:\n{sgd_result}")
     print(f"Test sprawdzianu krzyżowego dla klasyfikatora dummy:\n{dummy_result}")
+
+    # Sprawdzanie modelu macierz pomylek
+    cm = accuracy_test.model_confusion_matrix(sgd_clf, X_train, y_train_5)
+    print(f"Macierz pomylek:\n{cm}")
+    # Sprawdzanie precyzji modelu
+    predict = accuracy_test.predict
+    prec_score = precision_score(y_train_5, predict)
+    reca_score = recall_score(y_train_5, predict)
+    F1 = f1_score(y_train_5, predict)
+    print(f"W ilu procentach model sie nie myli: {prec_score}")
+    print(f"Ile procent przypadków rozpoznaje: {reca_score}")
+    print(f"Średnia harmonicza F1 = {F1}")
 
     # Wyswietlenie danych za pomoca grafu
     graf = Grafs()
