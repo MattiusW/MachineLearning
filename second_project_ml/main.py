@@ -1,5 +1,5 @@
 import matplotlib.pyplot as plt
-from sklearn.metrics import precision_score, recall_score, f1_score
+from sklearn.metrics import precision_score, recall_score, f1_score, roc_curve, roc_auc_score
 
 from CheckAccuracy import CheckAccuracy
 from Classificator import Classificator
@@ -64,8 +64,15 @@ def main():
     recall_at_90_precision = recall_score(y_train_5, y_train_pred_90)
     print(f"Precyzja modelu: {precision_90}, Dokładność modelu {recall_at_90_precision}")
 
+    # Wykres krzywej ROC
+    fpr, tpr, thresholds_roc = roc_curve(y_train_5, y_scores)
+    idx_for_treshold_at_90 = (thresholds <= treshold_for_90_precision).argmax()
+    tpr_90, fpr_90 = tpr[idx_for_treshold_at_90], fpr[idx_for_treshold_at_90]
+    print("ROC SCORE: " , roc_auc_score(y_train_5, y_scores))
+
     # Wyswietlenie danych za pomoca grafu
     graf = Grafs()
+    graf.roc_graf(fpr, tpr, tpr_90, fpr_90)
     graf.decision_graf(thresholds,precisions,recalls)
     graf.plots_digit(X[0])
     graf.plots_digit(X[1])

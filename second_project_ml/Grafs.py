@@ -16,3 +16,9 @@ class Grafs():
         plt.vlines(thresholds, 0, 1.0, "k", "dotted", label="Próg")
         plt.plot(recalls, precisions, linewidth=2, label="Krzywa precyzji/czułości")
         plt.show()
+
+    def roc_graf(self, fpr, tpr, fpr_90, tpr_90):
+        plt.plot(fpr, tpr, linewidth=2, label="Krzywa ROC")
+        plt.plot([0, 1], [0, 1], "k:", label="Krzywa ROC klasyfikatora losowego")
+        plt.plot([fpr_90], [tpr_90], "ko", label="Próg dla precyzji 90%")
+        plt.show()
