@@ -70,6 +70,10 @@ def main():
     tpr_90, fpr_90 = tpr[idx_for_treshold_at_90], fpr[idx_for_treshold_at_90]
     print("ROC SCORE: " , roc_auc_score(y_train_5, y_scores))
 
+    # RandomForestClassifier
+    y_probas_forest = classificator.forest_clf_model(X_train, y_train_5)
+    print(f"Forest cfl: {y_probas_forest[:2]}")
+
     # Wyswietlenie danych za pomoca grafu
     graf = Grafs()
     graf.roc_graf(fpr, tpr, tpr_90, fpr_90)

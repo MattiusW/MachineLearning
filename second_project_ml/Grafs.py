@@ -13,7 +13,6 @@ class Grafs():
     def decision_graf(self, thresholds, precisions, recalls):
         plt.plot(thresholds, precisions[:-1], "b--", label="Precyzja", linewidth=2)
         plt.plot(thresholds, recalls[:-1], "g--", label="Czułość", linewidth=2)
-        plt.vlines(thresholds, 0, 1.0, "k", "dotted", label="Próg")
         plt.plot(recalls, precisions, linewidth=2, label="Krzywa precyzji/czułości")
         plt.show()
 
