@@ -52,8 +52,21 @@ def main():
     print(f"Ile procent przypadków rozpoznaje: {reca_score}")
     print(f"Średnia harmonicza F1 = {F1}")
 
+    # Wyliczanie precyzji i pełności modelu
+    precisions, recalls, thresholds = accuracy_test.model_decision_score(sgd_clf, X_train, y_train_5)
+
+    # Uzyskanie 90% precyzji
+    y_scores = accuracy_test.decision_score
+    idx_for_90_precision = (precisions >= 90).argmax()
+    treshold_for_90_precision = thresholds[idx_for_90_precision]
+    y_train_pred_90 = (y_scores > treshold_for_90_precision)
+    precision_90 = precision_score(y_train_5, y_train_pred_90)
+    recall_at_90_precision = recall_score(y_train_5, y_train_pred_90)
+    print(f"Precyzja modelu: {precision_90}, Dokładność modelu {recall_at_90_precision}")
+
     # Wyswietlenie danych za pomoca grafu
     graf = Grafs()
+    graf.decision_graf(thresholds,precisions,recalls)
     graf.plots_digit(X[0])
     graf.plots_digit(X[1])
 
