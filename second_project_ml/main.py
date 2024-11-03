@@ -37,9 +37,9 @@ def main():
     # Sprawdzanie modelu pod wzgledem wydajnosci
     accuracy_test = CheckAccuracy()
     sgd_clf = classificator.get_sgd_clf_model()
-    sgd_result = accuracy_test.model_cross_value_precision(sgd_clf, X_train, y_train_5)
+    sgd_result = accuracy_test.model_cross_value_predict(sgd_clf, X_train, y_train_5)
     dummy_clf = classificator.get_dummy_clf_model()
-    dummy_result = accuracy_test.model_cross_value_precision(dummy_clf, X_train, y_train_5)
+    dummy_result = accuracy_test.model_cross_value_predict(dummy_clf, X_train, y_train_5)
     print(f"Test sprawdzianu krzyżowego dla klasyfikatora sgd:\n{sgd_result}")
     print(f"Test sprawdzianu krzyżowego dla klasyfikatora dummy:\n{dummy_result}")
 
@@ -101,16 +101,19 @@ def main():
     sgd_clf.fit(X_train, y_train)
     sgd_predict = sgd_clf.predict([some_digit])
     sgd_decision = sgd_clf.decision_function([some_digit]).round()
-    rare_model = accuracy_test.model_cross_value_precision(sgd_clf, X_train, y_train)
+    rare_model = accuracy_test.model_cross_value_predict(sgd_clf, X_train, y_train)
     # Przeskalowanie danych wejsciowych
     scaler = StandardScaler()
     X_train_scaled = scaler.fit_transform(X_train.astype("float64"))
-    scaled_rare_model = accuracy_test.model_cross_value_precision(sgd_clf, X_train_scaled, y_train)
+    scaled_rare_model = accuracy_test.model_cross_value_predict(sgd_clf, X_train_scaled, y_train)
+    accuracy_test.model_confusion_matrix(sgd_clf, X_train_scaled, y_train)
+    y_train_pred = accuracy_test.predict
     print(f"SGD predict: {sgd_predict}, SGD decision:\n{sgd_decision}")
     print(f"Rare sgd model: {rare_model} \n Rare sgd scaled model: {scaled_rare_model}")
 
     # Wyswietlenie danych za pomoca grafu
     graf = Grafs()
+    graf.matrix_graf(y_train, y_train_pred)
     graf.forest_graf(recalls, precisions, recalls_forest, precisions_forest)
     graf.roc_graf(fpr, tpr, tpr_90, fpr_90)
     graf.decision_graf(thresholds,precisions,recalls)

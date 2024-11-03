@@ -1,6 +1,8 @@
 import matplotlib.pyplot as plt
 from scipy.ndimage import label
+from sklearn.metrics import ConfusionMatrixDisplay
 from sympy.printing.pretty.pretty_symbology import line_width
+from tensorflow.python.keras.utils.metrics_utils import ConfusionMatrix
 
 
 class Grafs():
@@ -25,4 +27,8 @@ class Grafs():
     def forest_graf(self, recalls, precisions, recalls_forest, precisions_forest):
         plt.plot(recalls_forest, precisions_forest, "b--", linewidth=2, label="Las losowy")
         plt.plot(recalls, precisions, "--", linewidth=2, label="SGD")
+        plt.show()
+
+    def matrix_graf(self, data_y, data_y_pred):
+        ConfusionMatrixDisplay.from_predictions(data_y, data_y_pred, normalize="true", values_format=".0%")
         plt.show()

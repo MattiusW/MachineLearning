@@ -7,7 +7,7 @@ class CheckAccuracy():
         self.predict = None
         self.decision_score = None
 
-    def model_cross_value_precision(self, model_to_check, data_x, data_y):
+    def model_cross_value_predict(self, model_to_check, data_x, data_y):
         result = cross_val_score(model_to_check, data_x, data_y, cv=3, scoring="accuracy")
         return result
 
