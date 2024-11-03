@@ -1,5 +1,7 @@
 import matplotlib.pyplot as plt
 from sklearn.metrics import precision_score, recall_score, f1_score, roc_curve, roc_auc_score, precision_recall_curve
+from sklearn.preprocessing import StandardScaler
+from sklearn.svm import SVC
 
 from CheckAccuracy import CheckAccuracy
 from Classificator import Classificator
@@ -17,6 +19,7 @@ def main():
 
     # Rozdzielenie zbiorow danych
     X_train, X_test, y_train, y_test = X[:60000], X[60000:], y[:60000], y[60000:]
+    some_digit = X[0]
 
     # Klasyfikator binarny sgd
     y_train_5 = (y_train == '5') # Wartosc true dla piatek
@@ -84,6 +87,28 @@ def main():
     forest_roc_score = roc_auc_score(y_train_5, y_scores_forest)
     print(f"F1 = {forest_f1_score}, ROC = {forest_roc_score}")
 
+    # Train SVM Classificator
+    svm_clf = classificator.svm_clf
+    svm_clf.fit(X_train[:2000], y_train[:2000])
+    some_digit_scores = svm_clf.decision_function([some_digit])
+    high_value_set = some_digit_scores.argmax()
+    print("SVM predict: ", svm_clf.predict([some_digit]))
+    print("High value in set: ", high_value_set)
+    print("Digit score: ", some_digit_scores.round(2))
+    print("SVM class set: ", svm_clf.classes_)
+
+    # Train SGD classficator
+    sgd_clf.fit(X_train, y_train)
+    sgd_predict = sgd_clf.predict([some_digit])
+    sgd_decision = sgd_clf.decision_function([some_digit]).round()
+    rare_model = accuracy_test.model_cross_value_precision(sgd_clf, X_train, y_train)
+    # Przeskalowanie danych wejsciowych
+    scaler = StandardScaler()
+    X_train_scaled = scaler.fit_transform(X_train.astype("float64"))
+    scaled_rare_model = accuracy_test.model_cross_value_precision(sgd_clf, X_train_scaled, y_train)
+    print(f"SGD predict: {sgd_predict}, SGD decision:\n{sgd_decision}")
+    print(f"Rare sgd model: {rare_model} \n Rare sgd scaled model: {scaled_rare_model}")
+
     # Wyswietlenie danych za pomoca grafu
     graf = Grafs()
     graf.forest_graf(recalls, precisions, recalls_forest, precisions_forest)
@@ -94,3 +119,4 @@ def main():
 
 if __name__ == '__main__':
     main()
+

@@ -1,7 +1,9 @@
+from pandas.core.common import random_state
 from sklearn.dummy import DummyClassifier
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.linear_model import SGDClassifier
 from sklearn.model_selection import cross_val_predict
+from sklearn.svm import SVC
 
 
 class Classificator():
@@ -9,6 +11,7 @@ class Classificator():
         self.sgd_clf = SGDClassifier(random_state=42)
         self.dummy_clf = DummyClassifier()
         self.forest_clf = RandomForestClassifier(random_state=42)
+        self.svm_clf = SVC(random_state=42)
 
     def sgd_clf_model(self, data_x, data_y, X):
         self.sgd_clf.fit(data_x, data_y)
@@ -29,4 +32,5 @@ class Classificator():
 
     def get_dummy_clf_model(self):
         return self.dummy_clf
+
 
