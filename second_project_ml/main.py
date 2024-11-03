@@ -1,5 +1,5 @@
 import matplotlib.pyplot as plt
-from sklearn.metrics import precision_score, recall_score, f1_score, roc_curve, roc_auc_score
+from sklearn.metrics import precision_score, recall_score, f1_score, roc_curve, roc_auc_score, precision_recall_curve
 
 from CheckAccuracy import CheckAccuracy
 from Classificator import Classificator
@@ -74,8 +74,19 @@ def main():
     y_probas_forest = classificator.forest_clf_model(X_train, y_train_5)
     print(f"Forest cfl: {y_probas_forest[:2]}")
 
+    # Dane do pokazania precyzji i czulosci modelu na grafie
+    y_scores_forest = y_probas_forest[:, 1]
+    precisions_forest, recalls_forest, thresholds_forest = precision_recall_curve(y_train_5, y_scores_forest)
+
+    # Wynik F1 i ROC AUC
+    y_train_pred_forest = y_probas_forest[:, 1] >= 0.5
+    forest_f1_score = f1_score(y_train_5, y_train_pred_forest)
+    forest_roc_score = roc_auc_score(y_train_5, y_scores_forest)
+    print(f"F1 = {forest_f1_score}, ROC = {forest_roc_score}")
+
     # Wyswietlenie danych za pomoca grafu
     graf = Grafs()
+    graf.forest_graf(recalls, precisions, recalls_forest, precisions_forest)
     graf.roc_graf(fpr, tpr, tpr_90, fpr_90)
     graf.decision_graf(thresholds,precisions,recalls)
     graf.plots_digit(X[0])

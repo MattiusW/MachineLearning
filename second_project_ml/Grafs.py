@@ -21,3 +21,8 @@ class Grafs():
         plt.plot([0, 1], [0, 1], "k:", label="Krzywa ROC klasyfikatora losowego")
         plt.plot([fpr_90], [tpr_90], "ko", label="Próg dla precyzji 90%")
         plt.show()
+
+    def forest_graf(self, recalls, precisions, recalls_forest, precisions_forest):
+        plt.plot(recalls_forest, precisions_forest, "b--", linewidth=2, label="Las losowy")
+        plt.plot(recalls, precisions, "--", linewidth=2, label="SGD")
+        plt.show()
