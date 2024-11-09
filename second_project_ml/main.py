@@ -1,4 +1,5 @@
 import matplotlib.pyplot as plt
+import numpy as np
 from sklearn.metrics import precision_score, recall_score, f1_score, roc_curve, roc_auc_score, precision_recall_curve
 from sklearn.preprocessing import StandardScaler
 from sklearn.svm import SVC
@@ -111,14 +112,45 @@ def main():
     print(f"SGD predict: {sgd_predict}, SGD decision:\n{sgd_decision}")
     print(f"Rare sgd model: {rare_model} \n Rare sgd scaled model: {scaled_rare_model}")
 
+    # Przygotowanie danych do wieloetykietowego klasifikatora
+    y_train_large = (y_train >= '7')
+    y_train_odd = (y_train.astype('int8') % 2 == 1)
+    y_multilabel = np.c_[y_train_large, y_train_odd]
+    classificator.knn_clf_model(X_train, y_multilabel)
+    knn_clf = classificator.knn_clf
+    knn_model_predict = knn_clf.predict([some_digit])
+    y_train_knn_pred = accuracy_test.model_cross_value_predict(knn_clf, X_train, y_multilabel)
+    knn_f1_score = f1_score(y_multilabel, y_train_knn_pred, average="macro")
+    print(f"Knn predict: {knn_model_predict}, F1 score: {knn_f1_score}")
+
+    # Klasyfikator chain
+    chain_clf = classificator.chain_clf
+    chain_clf.fit(X_train[:2000], y_multilabel[:2000])
+    chain_predict = chain_clf.predict([some_digit])
+    print(f"Chain predict {chain_predict}")
+
+    # Zaszumienie i oczyszczenie obrazu
+    np.random.seed(42)
+    noise = np.random.randint(0,100, (len(X_train), 784))
+    X_train_mod = X_train + noise
+    noise = np.random.randint(0, 100, (len(X_test), 784))
+    X_test_mod = X_test + noise
+    y_train_mod = X_train
+    y_test_mod = X_test
+
+    knn_clf.fit(X_train_mod, y_train_mod)
+    clean_digit = knn_clf.predict([X_test_mod[0]])
+
     # Wyswietlenie danych za pomoca grafu
     graf = Grafs()
+    graf.plots_digit(clean_digit)
     graf.matrix_graf(y_train, y_train_pred)
     graf.forest_graf(recalls, precisions, recalls_forest, precisions_forest)
     graf.roc_graf(fpr, tpr, tpr_90, fpr_90)
     graf.decision_graf(thresholds,precisions,recalls)
     graf.plots_digit(X[0])
     graf.plots_digit(X[1])
+
 
 if __name__ == '__main__':
     main()
