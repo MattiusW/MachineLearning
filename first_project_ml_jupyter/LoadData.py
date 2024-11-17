@@ -1,7 +1,9 @@
 from pathlib import Path
+import numpy as np
 import pandas as pd
 import tarfile
 import urllib.request
+from sklearn.model_selection import train_test_split
 from TestSet import TestSet
 
 # Wczytanie danych
@@ -27,3 +29,12 @@ def load_test_set():
     train_set, test_set = test_set_instance.save_data
     return train_set, test_set
 
+def load_spliter_test_set():
+    housing = load_housing_data()
+    housing["income_cat"] = pd.cut(housing["median_income"], bins=[0., 1.5, 3.0, 4.5, 6., np.inf], labels=[1,2,3,4,5])
+    strat_train_set, strat_test_set = train_test_split(housing, test_size=0.2, stratify=housing["income_cat"], random_state=42)
+    return strat_train_set, strat_test_set
+
+def delete_inf_column(strat_train_set, strat_test_set):
+    for set_ in (strat_train_set, strat_test_set):
+        set_.drop("income_cat", axis=1, inplace=True)
