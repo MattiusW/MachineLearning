@@ -7,7 +7,6 @@ from sklearn.model_selection import train_test_split
 from TestSet import TestSet
 
 # Wczytanie danych
-@staticmethod
 def load_housing_data():
     tarball_path = Path("datasets/housing.tgz")
     if not tarball_path.is_file():
@@ -19,7 +18,6 @@ def load_housing_data():
     return pd.read_csv(Path("datasets/housing/housing.csv"))
 
 # Rozdzelenie danych na zbior testowy
-@staticmethod
 def load_test_set():
     housing = load_housing_data()
     housing_with_id = housing.reset_index()
